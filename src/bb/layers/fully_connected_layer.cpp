@@ -1,5 +1,7 @@
 #include "fully_connected_layer.h"
 #include <random>
+#include <ostream>
+#include <istream>
 
 namespace bb
 {
@@ -56,6 +58,14 @@ namespace bb
 		for (int j = 0; j < dim; j++)
 			for (int i = 0; i < prev_dim + 1; i++)
 				weight.get(i, j) = distr(engine);
+	}
+	void fully_connected_layer::store_weight_to_stream(std::ostream& stream)
+	{
+		stream.write((const char*)weight.data(), (prev_dim + 1) * dim * sizeof(double));
+	}
+	void fully_connected_layer::load_weight_from_stream(std::istream& stream)
+	{
+		stream.read((char*)weight.data(), (prev_dim + 1) * dim * sizeof(double));
 	}
 	double fully_connected_layer::activator(double x)
 	{

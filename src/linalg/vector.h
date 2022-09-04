@@ -45,9 +45,13 @@ namespace linalg
 			}
 			return index;
 		}
-		const std::vector<double>& data() const
+		double* data()
 		{
-			return v;
+			return v.data();
+		}
+		const double* data() const
+		{
+			return v.data();
 		}
 		double& operator[](size_t i)
 		{

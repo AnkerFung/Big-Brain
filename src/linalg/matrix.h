@@ -15,18 +15,32 @@ namespace linalg
 			column(_Column),
 			v(row * column)
 		{}
+		mat(size_t _Row, size_t _Column, const double* _V)
+			:
+			row(_Row),
+			column(_Column),
+			v(row * column)
+		{
+			rsize_t size = row * column * sizeof(double);
+			memcpy_s(v.data(), row * column * sizeof(double), (const void*)_V, size);
+		}
 		mat(size_t _Row, size_t _Column, const std::vector<double>& _V)
 			:
 			row(_Row),
 			column(_Column),
-			v(_V)
-		{}
+			v(row * column)
+		{
+			assert(_V.size() != row * column);
+			v.assign(_V.cbegin(), _V.cend());
+		}
 		mat(size_t _Row, size_t _Column, std::vector<double>&& _V)
 			:
 			row(_Row),
 			column(_Column),
 			v(std::move(_V))
-		{}
+		{
+			assert(v.size() != row * column);
+		}
 		std::pair<size_t, size_t> dimensions() const
 		{
 			return { row, column };
@@ -42,6 +56,14 @@ namespace linalg
 			assert(i < row
 				&& j < column);
 			return v[i + j * row];
+		}
+		double* data()
+		{
+			return v.data();
+		}
+		const double* data() const
+		{
+			return v.data();
 		}
 		mat operator=(const mat& obj)
 		{
