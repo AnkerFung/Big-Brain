@@ -14,6 +14,13 @@ namespace linalg
 			dim(_Dim),
 			v(_Dim)
 		{}
+		vec(size_t _Dim, const double* _V)
+			:
+			dim(_Dim),
+			v(_Dim)
+		{
+			memcpy_s(v.data(), dim * sizeof(double), (const void*)_V, dim * sizeof(double));
+		}
 		vec(const std::vector<double>& _V)
 			:
 			dim(_V.size()),

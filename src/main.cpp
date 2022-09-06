@@ -31,17 +31,18 @@ void train()
 	auto training_sets = read_training_sets();
 	auto testing_sets = read_testing_sets();
 	fnn network(std::vector<size_t>{ 784, 300, 10 });
-	double prev_cr = 0.0;
-	double cr = 0.0; // correct rate
 	int epoch = 0;
+	double prev_cr = 0.0;
+	double cr = test_accuracy(network, testing_sets); // correct rate
+	printf_s("On epoch: %d\nCorrect Rate: %d%%\n", epoch, (int)(cr * 100.0));
 	while (cr >= prev_cr)
 	{
+		network.train(training_sets, 0.01, 10);
+		epoch += 1;
 		prev_cr = cr;
 		cr = test_accuracy(network, testing_sets);
 		system("cls");
 		printf_s("On epoch: %d\nCorrect Rate: %d%%\n", epoch, (int)(cr * 100.0));
-		network.train(training_sets, 0.01, 10);
-		epoch += 1;
 	}
 	network.store_to_file("resources/network.bb");
 }

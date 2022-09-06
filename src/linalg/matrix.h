@@ -49,13 +49,15 @@ namespace linalg
 		{
 			assert(i < row
 				&& j < column);
-			return v[i + j * row];
+			return v[i * column + j];
+			//return v[i + j * row];
 		}
 		double get(size_t i, size_t j) const
 		{
 			assert(i < row
 				&& j < column);
-			return v[i + j * row];
+			return v[i * column + j];
+			//return v[i + j * row];
 		}
 		double* data()
 		{
@@ -77,73 +79,73 @@ namespace linalg
 			assert(a.row    == b.row
 				&& a.column == b.column);
 			size_t size = a.row * a.column;
-			std::vector<double> _V(size);
+			mat c(a.row, a.column);
 			for (size_t i = 0; i < size; i++)
 			{
-				_V[i] = a.v[i] + b.v[i];
+				c.v[i] = a.v[i] + b.v[i];
 			}
-			return mat(a.row, a.column, std::move(_V));
+			return c;
 		}
 		friend mat operator-(const mat& a, const mat& b)
 		{
 			assert(a.row == b.row
 				&& a.column == b.column);
 			size_t size = a.row * a.column;
-			std::vector<double> _V(size);
+			mat c(a.row, a.column);
 			for (size_t i = 0; i < size; i++)
 			{
-				_V[i] = a.v[i] - b.v[i];
+				c.v[i] = a.v[i] - b.v[i];
 			}
-			return mat(a.row, a.column, std::move(_V));
+			return c;
 		}
 		friend mat operator*(double scale, const mat& m)
 		{
 			size_t size = m.row * m.column;
-			std::vector<double> _V(size);
+			mat c(m.row, m.column);
 			for (size_t i = 0; i < size; i++)
 			{
-				_V[i] = m.v[i] * scale;
+				c.v[i] = m.v[i] * scale;
 			}
-			return mat(m.row, m.column, std::move(_V));
+			return c;
 		}
 		friend mat operator*(const mat& m, double scale)
 		{
 			size_t size = m.row * m.column;
-			std::vector<double> _V(size);
+			mat c(m.row, m.column);
 			for (size_t i = 0; i < size; i++)
 			{
-				_V[i] = m.v[i] * scale;
+				c.v[i] = m.v[i] * scale;
 			}
-			return mat(m.row, m.column, std::move(_V));
+			return c;
 		}
 		friend vec operator*(const mat& m, const vec& v)
 		{
 			assert(m.row == v.dimension());
-			std::vector<double> _V(m.column);
+			vec c(m.column);
 			for (size_t i = 0; i < m.row; i++)
 			{
 				for (size_t j = 0; j < m.column; j++)
 				{
-					_V[j] += m.get(i, j) * v[i];
+					c[j] += m.get(i, j) * v[i];
 				}
 			}
-			return vec(std::move(_V));
+			return c;
 		}
 		friend mat operator*(const mat& a, const mat& b)
 		{
 			assert(a.row == b.column);
-			std::vector<double> _V(b.row * a.column);
+			mat c(b.row, a.column);
 			for (size_t i = 0; i < b.row; i++)
 			{
 				for (size_t j = 0; j < a.column; j++)
 				{
 					for (size_t k = 0; k < b.column; k++)
 					{
-						_V[i + j * b.row] += a.get(k, j) * b.get(i, k);
+						c.get(i, j) += a.get(k, j) * b.get(i, k);
 					}
 				}
 			}
-			return mat(b.row, a.column, std::move(_V));
+			return c;
 		}
 	private:
 		const size_t row, column;
@@ -155,14 +157,31 @@ namespace linalg
 		size_t row = m.dimensions().first;
 		size_t column = m.dimensions().second;
 		assert(column == v.dimension());
-		std::vector<double> _V(row);
-		for (size_t i = 0; i < column; i++)
+		vec c(row);
+		for (size_t j = 0; j < row; j++)
 		{
-			for (size_t j = 0; j < row; j++)
+			for (size_t i = 0; i < column; i++)
 			{
-				_V[j] += m.get(j, i) * v[i];
+				c[j] += m.get(j, i) * v[i];
 			}
 		}
-		return vec(std::move(_V));
+		return c;
 	}
+
+	inline vec multiply_transposed_with_row_as(size_t row, const mat& m, const vec& v)
+	{
+		assert(row <= m.dimensions().first);
+		size_t column = m.dimensions().second;
+		assert(column == v.dimension());
+		vec c(row);
+		for (size_t j = 0; j < row; j++)
+		{
+			for (size_t i = 0; i < column; i++)
+			{
+				c[j] += m.get(j, i) * v[i];
+			}
+		}
+		return c;
+	}
+
 }

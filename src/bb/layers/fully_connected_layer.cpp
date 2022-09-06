@@ -38,11 +38,7 @@ namespace bb
 	}
 	void fully_connected_layer::backward(const fully_connected_layer& next)
 	{
-		vec a = multiply_transposed(next.weight, next.delta);
-		vec b(dim);
-		for (size_t i = 0; i < dim; i++)
-			b[i] = a[i];
-		delta = transform(out, activator_deriv) * b;
+		delta = transform(out, activator_deriv) * multiply_transposed_with_row_as(dim, next.weight, next.delta); // the last element of a is what we get for the bias node and we don't want that
 	}
 	void fully_connected_layer::update_weight(double lr)
 	{
@@ -55,8 +51,8 @@ namespace bb
 		std::random_device rd;
 		std::default_random_engine engine(rd());
 		std::uniform_real_distribution<> distr(-0.1, 0.1);
-		for (int j = 0; j < dim; j++)
-			for (int i = 0; i < prev_dim + 1; i++)
+		for (int i = 0; i < prev_dim + 1; i++)
+			for (int j = 0; j < dim; j++)
 				weight.get(i, j) = distr(engine);
 	}
 	void fully_connected_layer::store_weight_to_stream(std::ostream& stream)
